@@ -1,66 +1,71 @@
-import videojs from 'video.js';
+import videojs from "video.js";
+import { version as VERSION } from "../package.json";
+
+const Plugin = videojs.getPlugin("plugin");
 
 // Default options for the plugin.
 const defaults = {
   image: "/logo-example.png",
   title: "Logo Title",
   destination: "http://www.google.com",
-  destinationTarget: "_blank"
+  destinationTarget: "_blank",
 };
 
-/**
- * Function to invoke when the player is ready.
- *
- * This is a great place for your plugin to initialize itself. When this
- * function is called, the player will have its DOM and child components
- * in place.
- *
- * @function onPlayerReady
- * @param    {Player} player
- * @param    {Object} [options={}]
- */
-const onPlayerReady = (player, options) => {
-	let containerElement = document.createElement("div");
-	containerElement.className = "vjs-brand-container";
+class Brand extends Plugin {
+  /**
+   * Create a Brand plugin instance.
+   *
+   * @param  {Player} player
+   *         A Video.js Player instance.
+   *
+   * @param  {Object} [options]
+   *         An optional options object.
+   *
+   *         While not a core part of the Video.js plugin architecture, a
+   *         second argument of options is a convenient way to accept inputs
+   *         from your plugin's caller.
+   */
+  constructor(player, options) {
+    // the parent class will add player under this.player
+    super(player);
 
-	let linkElement = document.createElement("a");
-	linkElement.className = "vjs-brand-container-link";
-	linkElement.setAttribute("href", options.destination || defaults.destination);
-	linkElement.setAttribute("title", options.title || defaults.title);
-	linkElement.setAttribute("target", options.destinationTarget || defaults.destinationTarget)
+    this.options = videojs.mergeOptions(defaults, options);
 
-	let imageElement = document.createElement("img");
-	imageElement.src = options.image || defaults.image;
+    let containerElement = document.createElement("div");
+    containerElement.className = "vjs-brand-container";
 
-	linkElement.appendChild(imageElement);
-	containerElement.appendChild(linkElement);
+    let linkElement = document.createElement("a");
+    linkElement.className = "vjs-brand-container-link";
+    linkElement.setAttribute(
+      "href",
+      options.destination || defaults.destination
+    );
+    linkElement.setAttribute("title", options.title || defaults.title);
+    linkElement.setAttribute(
+      "target",
+      options.destinationTarget || defaults.destinationTarget
+    );
 
-	player.controlBar.el().insertBefore(containerElement, player.controlBar.fullscreenToggle.el());
-  player.addClass('vjs-brand');
-};
+    let imageElement = document.createElement("img");
+    imageElement.src = options.image || defaults.image;
 
-/**
- * A video.js plugin.
- *
- * In the plugin function, the value of `this` is a video.js `Player`
- * instance. You cannot rely on the player being in a "ready" state here,
- * depending on how the plugin is invoked. This may or may not be important
- * to you; if not, remove the wait for "ready"!
- *
- * @function brand
- * @param    {Object} [options={}]
- *           An object of options left to the plugin author to define.
- */
-const brand = function(options) {
-  this.ready(() => {
-    onPlayerReady(this, videojs.mergeOptions(defaults, options));
-  });
-};
+    linkElement.appendChild(imageElement);
+    containerElement.appendChild(linkElement);
 
-// Register the plugin with video.js.
-videojs.plugin('brand', brand);
+    player.controlBar
+      .el()
+      .insertBefore(containerElement, player.controlBar.fullscreenToggle.el());
+    player.addClass("vjs-brand");
+  }
+}
+
+// Define default values for the plugin's `state` object here.
+Brand.defaultState = {};
 
 // Include the version number.
-brand.VERSION = '__VERSION__';
+Brand.VERSION = VERSION;
 
-export default brand;
+// Register the plugin with video.js.
+videojs.registerPlugin("brand", Brand);
+
+export default Brand;

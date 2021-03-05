@@ -1,0 +1,8 @@
+/* css for videojs-brand */
+
+.video-js {
+
+  &.vjs-brand {
+    display: block;
+  }
+}
